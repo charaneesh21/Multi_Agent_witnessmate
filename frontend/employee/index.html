@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Employee Portal – Sign In</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --indigo:     #4f46e5;
+      --indigo-h:   #4338ca;
+      --indigo-lt:  #eef2ff;
+      --error:      #dc2626;
+      --error-lt:   #fef2f2;
+      --text:       #1e293b;
+      --muted:      #64748b;
+      --border:     #e2e8f0;
+      --bg:         #f8fafc;
+      --surface:    #ffffff;
+      --radius:     10px;
+      --shadow:     0 4px 24px rgba(0,0,0,.09);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    /* ── Brand mark ── */
+    .brand {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .brand-icon {
+      width: 52px; height: 52px;
+      background: var(--indigo);
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: .75rem;
+      font-size: 1.5rem;
+    }
+    .brand h1 { font-size: 1.25rem; font-weight: 700; color: var(--text); }
+    .brand p  { font-size: .875rem; color: var(--muted); margin-top: .25rem; }
+
+    /* ── Card ── */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 2rem;
+      width: 100%;
+      max-width: 400px;
+    }
+    .card h2 { font-size: 1.125rem; font-weight: 600; margin-bottom: 1.5rem; }
+
+    /* ── Form ── */
+    .field { margin-bottom: 1.125rem; }
+    .field label {
+      display: block;
+      font-size: .8125rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      margin-bottom: .375rem;
+    }
+    .field input {
+      width: 100%;
+      padding: .625rem .875rem;
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      font-size: .9375rem;
+      color: var(--text);
+      background: var(--bg);
+      transition: border-color .15s, box-shadow .15s;
+      outline: none;
+    }
+    .field input:focus {
+      border-color: var(--indigo);
+      box-shadow: 0 0 0 3px rgba(79,70,229,.15);
+      background: var(--surface);
+    }
+
+    /* ── Error banner ── */
+    .error-banner {
+      display: none;
+      align-items: center;
+      gap: .5rem;
+      background: var(--error-lt);
+      border: 1px solid #fca5a5;
+      border-radius: 7px;
+      padding: .625rem .875rem;
+      margin-bottom: 1rem;
+      font-size: .875rem;
+      color: var(--error);
+    }
+    .error-banner.visible { display: flex; }
+
+    /* ── Button ── */
+    .btn {
+      width: 100%;
+      padding: .7rem 1rem;
+      background: var(--indigo);
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      font-size: .9375rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s, opacity .15s;
+      margin-top: .25rem;
+    }
+    .btn:hover  { background: var(--indigo-h); }
+    .btn:active { opacity: .85; }
+    .btn:disabled { opacity: .6; cursor: not-allowed; }
+
+    .divider {
+      text-align: center;
+      margin: 1.5rem 0 1rem;
+      font-size: .8rem;
+      color: var(--muted);
+    }
+    .ceo-link {
+      display: block;
+      text-align: center;
+      font-size: .875rem;
+      color: var(--indigo);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .ceo-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <div class="brand">
+    <div class="brand-icon">🏢</div>
+    <h1>Employee Portal</h1>
+    <p>Daily Check-in System</p>
+  </div>
+
+  <div class="card">
+    <h2>Sign in to your account</h2>
+
+    <div class="error-banner" id="error-banner" role="alert">
+      <span>⚠</span>
+      <span id="error-text">Invalid email or password.</span>
+    </div>
+
+    <form id="login-form" novalidate>
+      <div class="field">
+        <label for="email">Work Email</label>
+        <input id="email" type="email" autocomplete="email"
+               placeholder="you@company.com" required />
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" type="password" autocomplete="current-password"
+               placeholder="••••••••" required />
+      </div>
+      <button class="btn" type="submit" id="submit-btn">Sign In</button>
+    </form>
+
+    <div class="divider">or</div>
+    <a class="ceo-link" href="/employee/register/">New Employee? Register here →</a>
+  </div>
+
+  <script>
+    const API = window.location.origin;
+    const TOKEN_KEY = 'emp_token';
+
+    // If already logged in, skip to dashboard
+    if (localStorage.getItem(TOKEN_KEY)) {
+      window.location.replace('dashboard.html');
+    }
+
+    const form      = document.getElementById('login-form');
+    const btn       = document.getElementById('submit-btn');
+    const banner    = document.getElementById('error-banner');
+    const errorText = document.getElementById('error-text');
+
+    function showError(msg) {
+      errorText.textContent = msg;
+      banner.classList.add('visible');
+    }
+    function hideError() {
+      banner.classList.remove('visible');
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideError();
+
+      const email    = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      if (!email || !password) {
+        showError('Please enter your email and password.');
+        return;
+      }
+
+      btn.disabled    = true;
+      btn.textContent = 'Signing in…';
+
+      try {
+        const res = await fetch(`${API}/api/auth/login/employee`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ email, password }),
+        });
+
+        if (res.ok) {
+          const { access_token } = await res.json();
+          localStorage.setItem(TOKEN_KEY, access_token);
+          window.location.replace('dashboard.html');
+        } else {
+          const data = await res.json().catch(() => ({}));
+          showError(data.detail || 'Invalid email or password.');
+          btn.disabled    = false;
+          btn.textContent = 'Sign In';
+        }
+      } catch {
+        showError('Cannot reach the server. Please try again.');
+        btn.disabled    = false;
+        btn.textContent = 'Sign In';
+      }
+    });
+  </script>
+</body>
+</html>

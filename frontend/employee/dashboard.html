@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Employee Portal – Daily Check-in</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --indigo:    #4f46e5;
+      --indigo-h:  #4338ca;
+      --indigo-lt: #eef2ff;
+      --success:   #16a34a;
+      --success-lt:#f0fdf4;
+      --warning:   #d97706;
+      --warning-lt:#fffbeb;
+      --error:     #dc2626;
+      --error-lt:  #fef2f2;
+      --text:      #1e293b;
+      --muted:     #64748b;
+      --border:    #e2e8f0;
+      --bg:        #f8fafc;
+      --surface:   #ffffff;
+      --radius:    10px;
+      --shadow:    0 2px 16px rgba(0,0,0,.07);
+      --header-h:  60px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      position: sticky; top: 0; z-index: 100;
+      height: var(--header-h);
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    }
+    .header-left { display: flex; align-items: center; gap: .875rem; }
+    .header-logo {
+      width: 34px; height: 34px;
+      background: var(--indigo);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 1rem;
+    }
+    .header-title { font-weight: 700; font-size: 1rem; }
+    #greeting     { font-size: .875rem; color: var(--muted); margin-left: .25rem; }
+
+    .btn-ghost {
+      background: none;
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      padding: .375rem .875rem;
+      font-size: .875rem;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      transition: border-color .15s, color .15s;
+    }
+    .btn-ghost:hover { border-color: var(--indigo); color: var(--indigo); }
+
+    /* ── Page body ── */
+    main {
+      max-width: 720px;
+      margin: 2rem auto;
+      padding: 0 1rem 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* ── Banners ── */
+    .banner {
+      display: none;
+      align-items: flex-start;
+      gap: .625rem;
+      border-radius: var(--radius);
+      padding: .875rem 1rem;
+      font-size: .9rem;
+      line-height: 1.5;
+    }
+    .banner.visible { display: flex; }
+    .banner-icon   { font-size: 1.1rem; flex-shrink: 0; margin-top: .05rem; }
+    .banner.success {
+      background: var(--success-lt);
+      border: 1px solid #bbf7d0;
+      color: #166534;
+    }
+    .banner.warning {
+      background: var(--warning-lt);
+      border: 1px solid #fde68a;
+      color: #92400e;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1.5rem;
+    }
+    .card-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+    .card-header h2 { font-size: 1.0625rem; font-weight: 700; }
+    .card-date      { font-size: .8125rem; color: var(--muted); }
+
+    /* ── Form fields ── */
+    .field { margin-bottom: 1.125rem; }
+    .field label {
+      display: block;
+      font-size: .8125rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      margin-bottom: .375rem;
+    }
+    .required { color: var(--error); margin-left: .2rem; }
+    .field textarea, .field input {
+      width: 100%;
+      padding: .625rem .875rem;
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      font-size: .9375rem;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--bg);
+      resize: vertical;
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .field textarea:focus, .field input:focus {
+      border-color: var(--indigo);
+      box-shadow: 0 0 0 3px rgba(79,70,229,.14);
+      background: var(--surface);
+    }
+
+    /* ── Mood selector ── */
+    .mood-row {
+      display: flex;
+      gap: .5rem;
+      flex-wrap: wrap;
+    }
+    .mood-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .25rem;
+      padding: .5rem .75rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+      min-width: 60px;
+    }
+    .mood-btn .emoji { font-size: 1.5rem; line-height: 1; }
+    .mood-btn .label { font-size: .7rem; color: var(--muted); }
+    .mood-btn:hover  { border-color: var(--indigo); background: var(--indigo-lt); }
+    .mood-btn.active {
+      border-color: var(--indigo);
+      background: var(--indigo-lt);
+      box-shadow: 0 0 0 2px rgba(79,70,229,.2);
+    }
+    .mood-btn.active .label { color: var(--indigo); font-weight: 600; }
+
+    /* ── Error message ── */
+    .field-error {
+      display: none;
+      font-size: .8125rem;
+      color: var(--error);
+      margin-top: .375rem;
+    }
+    .field-error.visible { display: block; }
+
+    /* ── Submit button ── */
+    .btn-primary {
+      width: 100%;
+      padding: .75rem 1rem;
+      background: var(--indigo);
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      font-size: .9375rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: .5rem;
+      transition: background .15s, opacity .15s;
+    }
+    .btn-primary:hover    { background: var(--indigo-h); }
+    .btn-primary:disabled { opacity: .6; cursor: not-allowed; }
+
+    /* ── Upload ── */
+    .upload-hint { font-size: .8rem; color: var(--muted); margin-bottom: .875rem; }
+    .drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+    .drop-zone:hover, .drop-zone.drag-over {
+      border-color: var(--indigo);
+      background: var(--indigo-lt);
+      color: var(--indigo);
+    }
+    .drop-zone .browse {
+      color: var(--indigo);
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .file-list { list-style: none; margin-top: .875rem; display: flex; flex-direction: column; gap: .5rem; }
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: .625rem;
+      padding: .5rem .75rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      font-size: .875rem;
+    }
+    .file-icon  { font-size: 1.1rem; flex-shrink: 0; }
+    .file-name  { flex: 1; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .file-size  { color: var(--muted); font-size: .8rem; flex-shrink: 0; }
+    .file-status { flex-shrink: 0; font-size: .85rem; }
+    .file-status.ok      { color: var(--success); }
+    .file-status.err     { color: var(--error); }
+    .file-status.loading { color: var(--muted); }
+
+    /* ── Already-submitted state ── */
+    .submitted-card {
+      display: none;
+      text-align: center;
+      padding: 2.5rem 1.5rem;
+    }
+    .submitted-card.visible { display: block; }
+    .submitted-card .big-icon { font-size: 3rem; margin-bottom: .75rem; }
+    .submitted-card h2 { font-size: 1.125rem; font-weight: 700; margin-bottom: .375rem; }
+    .submitted-card p  { color: var(--muted); font-size: .9rem; }
+
+    @media (max-width: 600px) {
+      main { margin: 1rem auto; }
+      .card { padding: 1.125rem; }
+      .mood-btn { min-width: 52px; padding: .4rem .5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-left">
+      <div class="header-logo">🏢</div>
+      <span class="header-title">Employee Portal</span>
+      <span id="greeting"></span>
+    </div>
+    <button class="btn-ghost" id="logout-btn">Sign Out</button>
+  </header>
+
+  <main>
+
+    <!-- Success banner -->
+    <div class="banner success" id="success-banner" role="status">
+      <span class="banner-icon">✅</span>
+      <div>
+        <strong>Daily check-in complete!</strong>
+        <span id="submitted-time"></span>
+      </div>
+    </div>
+
+    <!-- Watchdog warning banner -->
+    <div class="banner warning" id="warning-banner" role="alert">
+      <span class="banner-icon">⚠️</span>
+      <span id="warning-text"></span>
+    </div>
+
+    <!-- Already-submitted placeholder (replaces the form) -->
+    <div class="card submitted-card" id="done-card">
+      <div class="big-icon">✅</div>
+      <h2>You're all done for today!</h2>
+      <p id="done-time">Your daily check-in has been submitted.</p>
+    </div>
+
+    <!-- Daily status form -->
+    <div class="card" id="form-card">
+      <div class="card-header">
+        <h2>Daily Status Update</h2>
+        <span class="card-date" id="today-date"></span>
+      </div>
+
+      <form id="submission-form" novalidate>
+
+        <div class="field">
+          <label for="tasks">Tasks completed today<span class="required">*</span></label>
+          <textarea id="tasks" name="tasks_completed" rows="4"
+                    placeholder="Describe what you accomplished today…" required></textarea>
+          <span class="field-error" id="tasks-err">Please describe your tasks (at least 10 characters).</span>
+        </div>
+
+        <div class="field">
+          <label for="blockers">Current blockers <span style="color:var(--muted);font-weight:400;text-transform:none;font-size:.75rem">(optional)</span></label>
+          <textarea id="blockers" name="blockers" rows="3"
+                    placeholder="Any impediments? Leave blank if none."></textarea>
+        </div>
+
+        <div class="field">
+          <label for="plan">Plan for tomorrow<span class="required">*</span></label>
+          <textarea id="plan" name="next_day_plan" rows="4"
+                    placeholder="What will you work on tomorrow?" required></textarea>
+          <span class="field-error" id="plan-err">Please describe your plan (at least 10 characters).</span>
+        </div>
+
+        <div class="field">
+          <label>Team morale<span class="required">*</span></label>
+          <div class="mood-row" id="mood-row" role="group" aria-label="Select morale score 1 to 5"></div>
+          <input type="hidden" id="mood-value" name="mood" />
+          <span class="field-error" id="mood-err">Please select a morale score.</span>
+        </div>
+
+        <span class="field-error visible" id="form-err" style="display:none"></span>
+
+        <button class="btn-primary" type="submit" id="submit-btn">Submit Daily Update</button>
+      </form>
+    </div>
+
+    <!-- File upload -->
+    <div class="card" id="upload-card">
+      <div class="card-header">
+        <h2>Attach Files</h2>
+      </div>
+      <p class="upload-hint">Supported: PDF, DOCX, XLSX, PNG, JPG &nbsp;·&nbsp; Max 10 MB per file</p>
+
+      <div class="drop-zone" id="drop-zone" tabindex="0" role="button"
+           aria-label="Drop files here or click to browse">
+        Drop files here, or <span class="browse" id="browse-label">browse</span>
+        <input id="file-input" type="file"
+               accept=".pdf,.docx,.xlsx,.png,.jpg,.jpeg"
+               multiple style="display:none" />
+      </div>
+      <ul class="file-list" id="file-list"></ul>
+    </div>
+
+  </main>
+
+  <script>
+    /* ── Constants ── */
+    const API       = window.location.origin;
+    const TOKEN_KEY = 'emp_token';
+    const MOODS     = [
+      { value: 1, emoji: '😞', label: 'Very Low'  },
+      { value: 2, emoji: '😕', label: 'Low'       },
+      { value: 3, emoji: '😐', label: 'Neutral'   },
+      { value: 4, emoji: '🙂', label: 'Good'      },
+      { value: 5, emoji: '😄', label: 'Great'     },
+    ];
+    const ALLOWED_EXT = new Set(['pdf','docx','xlsx','png','jpg','jpeg']);
+    const MAX_BYTES   = 10 * 1024 * 1024;
+
+    /* ── Auth ── */
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (!token) window.location.replace('index.html');
+
+    function authHeaders() {
+      return { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
+    }
+
+    /* ── Helpers ── */
+    function fmtDate(d = new Date()) {
+      return d.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+    }
+    function fmtTime(iso) {
+      return new Date(iso).toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+    }
+    function fmtBytes(b) {
+      return b < 1024 * 1024 ? `${(b/1024).toFixed(0)} KB` : `${(b/1024/1024).toFixed(1)} MB`;
+    }
+    function ext(name) { return name.split('.').pop().toLowerCase(); }
+
+    /* ── Init ── */
+    document.getElementById('today-date').textContent = fmtDate();
+
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      await fetch(`${API}/api/employee/logout`, {
+        method: 'POST', headers: authHeaders(),
+      }).catch(() => {});
+      localStorage.removeItem(TOKEN_KEY);
+      window.location.replace('index.html');
+    });
+
+    /* ── Fetch profile ── */
+    (async () => {
+      try {
+        const res = await fetch(`${API}/api/employee/me`, { headers: authHeaders() });
+        if (res.status === 401) { localStorage.removeItem(TOKEN_KEY); window.location.replace('index.html'); return; }
+        const { name } = await res.json();
+        if (name) {
+          const hour = new Date().getHours();
+          const greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+          document.getElementById('greeting').textContent = `– ${greet}, ${name.split(' ')[0]}`;
+        }
+      } catch {}
+    })();
+
+    /* ── Check today's submission ── */
+    (async () => {
+      try {
+        const res = await fetch(`${API}/api/employee/submission/today`, { headers: authHeaders() });
+        const data = await res.json();
+        if (data.submitted_today) {
+          document.getElementById('form-card').style.display  = 'none';
+          document.getElementById('done-card').classList.add('visible');
+          if (data.submitted_at) {
+            document.getElementById('done-time').textContent =
+              `Submitted at ${fmtTime(data.submitted_at)}`;
+          }
+        }
+      } catch {}
+    })();
+
+    /* ── Mood selector ── */
+    const moodRow   = document.getElementById('mood-row');
+    const moodInput = document.getElementById('mood-value');
+
+    MOODS.forEach(({ value, emoji, label }) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'mood-btn';
+      btn.dataset.value = value;
+      btn.innerHTML = `<span class="emoji">${emoji}</span><span class="label">${label}</span>`;
+      btn.addEventListener('click', () => {
+        moodRow.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        moodInput.value = value;
+        document.getElementById('mood-err').style.display = 'none';
+      });
+      moodRow.appendChild(btn);
+    });
+
+    /* ── Form submission ── */
+    const form      = document.getElementById('submission-form');
+    const submitBtn = document.getElementById('submit-btn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const tasks = document.getElementById('tasks').value.trim();
+      const plan  = document.getElementById('plan').value.trim();
+      const mood  = moodInput.value;
+      let valid   = true;
+
+      document.getElementById('tasks-err').style.display = tasks.length >= 10 ? 'none' : 'block';
+      document.getElementById('plan-err').style.display  = plan.length  >= 10 ? 'none' : 'block';
+      document.getElementById('mood-err').style.display  = mood          ? 'none' : 'block';
+      if (tasks.length < 10 || plan.length < 10 || !mood) return;
+
+      submitBtn.disabled    = true;
+      submitBtn.textContent = 'Submitting…';
+
+      try {
+        const body = {
+          tasks_completed: tasks,
+          blockers:        document.getElementById('blockers').value.trim() || null,
+          next_day_plan:   plan,
+          mood:            parseInt(mood),
+        };
+
+        const res  = await fetch(`${API}/api/employee/submission`, {
+          method: 'POST',
+          headers: authHeaders(),
+          body:   JSON.stringify(body),
+        });
+        const data = await res.json();
+
+        if (res.status === 201) {
+          document.getElementById('form-card').style.display = 'none';
+          document.getElementById('done-card').classList.add('visible');
+          document.getElementById('success-banner').classList.add('visible');
+          if (data.flagged) {
+            const wb = document.getElementById('warning-banner');
+            document.getElementById('warning-text').textContent =
+              data.message || 'Your submission has been flagged for manager review.';
+            wb.classList.add('visible');
+          }
+        } else if (res.status === 409) {
+          document.getElementById('form-card').style.display = 'none';
+          document.getElementById('done-card').classList.add('visible');
+        } else {
+          const errEl = document.getElementById('form-err');
+          errEl.textContent = data.detail || 'Submission failed. Please try again.';
+          errEl.style.display = 'block';
+          submitBtn.disabled    = false;
+          submitBtn.textContent = 'Submit Daily Update';
+        }
+      } catch {
+        const errEl = document.getElementById('form-err');
+        errEl.textContent = 'Network error. Please check your connection and retry.';
+        errEl.style.display = 'block';
+        submitBtn.disabled    = false;
+        submitBtn.textContent = 'Submit Daily Update';
+      }
+    });
+
+    /* ── File upload ── */
+    const dropZone  = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const fileList  = document.getElementById('file-list');
+
+    document.getElementById('browse-label').addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('click', (e) => { if (e.target.id !== 'browse-label') fileInput.click(); });
+    dropZone.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') fileInput.click(); });
+
+    dropZone.addEventListener('dragover',  (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', ()  => dropZone.classList.remove('drag-over'));
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+      handleFiles([...e.dataTransfer.files]);
+    });
+    fileInput.addEventListener('change', () => {
+      handleFiles([...fileInput.files]);
+      fileInput.value = '';
+    });
+
+    function fileIcon(name) {
+      const e = ext(name);
+      if (['png','jpg','jpeg'].includes(e)) return '🖼️';
+      if (e === 'pdf')  return '📄';
+      if (e === 'docx') return '📝';
+      if (e === 'xlsx') return '📊';
+      return '📎';
+    }
+
+    function addFileItem(file) {
+      const li = document.createElement('li');
+      li.className = 'file-item';
+      li.innerHTML = `
+        <span class="file-icon">${fileIcon(file.name)}</span>
+        <span class="file-name" title="${file.name}">${file.name}</span>
+        <span class="file-size">${fmtBytes(file.size)}</span>
+        <span class="file-status loading">⏳</span>`;
+      fileList.appendChild(li);
+      return li.querySelector('.file-status');
+    }
+
+    async function handleFiles(files) {
+      for (const file of files) {
+        const fileExt = ext(file.name);
+        const statusEl = addFileItem(file);
+
+        if (!ALLOWED_EXT.has(fileExt)) {
+          statusEl.textContent = '✗ Type not allowed';
+          statusEl.className   = 'file-status err';
+          continue;
+        }
+        if (file.size > MAX_BYTES) {
+          statusEl.textContent = '✗ Too large';
+          statusEl.className   = 'file-status err';
+          continue;
+        }
+
+        try {
+          const fd = new FormData();
+          fd.append('file', file);
+          const res = await fetch(`${API}/api/employee/upload`, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}` },   // no Content-Type – let browser set boundary
+            body: fd,
+          });
+          if (res.ok) {
+            statusEl.textContent = '✓ Uploaded';
+            statusEl.className   = 'file-status ok';
+          } else {
+            const d = await res.json().catch(() => ({}));
+            statusEl.textContent = `✗ ${d.detail || 'Failed'}`;
+            statusEl.className   = 'file-status err';
+          }
+        } catch {
+          statusEl.textContent = '✗ Network error';
+          statusEl.className   = 'file-status err';
+        }
+      }
+    }
+  </script>
+</body>
+</html>

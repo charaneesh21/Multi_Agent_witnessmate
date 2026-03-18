@@ -1,0 +1,107 @@
+/*
+  frontend/ceo/static/ceo.css
+  Styles for the CEO Dashboard.
+
+  Sections:
+    1. CSS custom properties (design tokens – darker/more professional palette)
+    2. Reset and base typography
+    3. Layout – dashboard-shell (sidebar + main-content grid)
+    4. Sidebar – brand, nav items, active state, logout button
+    5. Main content – section spacing, section-header
+    6. KPI grid – responsive 2×2 then 4×1 at wide screens
+    7. KPI cards – value, label, sub-label, morale gauge bar
+    8. Report panel – markdown prose styling (headings, lists, tables)
+    9. Loading spinner
+   10. Alerts list – severity colour coding (critical/high/medium/low)
+   11. Team status table
+   12. Report history list
+   13. Badge (alert count dot in sidebar)
+   14. Responsive breakpoints
+       • ≤ 1024 px – collapse sidebar to icon bar
+       • ≤  768 px – full mobile layout, sidebar becomes bottom nav
+*/
+
+/* ── 1. Design tokens ─────────────────────────────────────────── */
+:root {
+  --color-primary:    #0f172a;   /* slate-900 – sidebar background  */
+  --color-accent:     #6366f1;   /* indigo-500 – CTAs and accents   */
+  --color-accent-h:   #4f46e5;   /* hover                           */
+  --color-success:    #16a34a;
+  --color-warning:    #d97706;
+  --color-error:      #dc2626;
+  --color-bg:         #f1f5f9;   /* slate-100 – main area           */
+  --color-surface:    #ffffff;
+  --color-border:     #e2e8f0;
+  --color-text:       #1e293b;
+  --color-muted:      #64748b;
+  --color-sidebar-text: #cbd5e1;
+  --sidebar-width:    240px;
+  --radius-card:      12px;
+  --shadow-card:      0 2px 16px rgba(0,0,0,.07);
+}
+
+/* ── 2. Reset ─────────────────────────────────────────────────── */
+/* Intentionally minimal */
+
+/* ── 3. Layout ────────────────────────────────────────────────── */
+/* .dashboard-shell  – CSS grid: [sidebar] [main-content]         */
+/* .main-content     – scrollable right panel                      */
+
+/* ── 4. Sidebar ───────────────────────────────────────────────── */
+/* .sidebar           – fixed left column, var(--sidebar-width)   */
+/* .sidebar-brand     – logo / company name at top                */
+/* .sidebar-nav       – vertical link list                        */
+/* .nav-item          – link with left border indicator           */
+/* .nav-item.active   – filled accent left border                 */
+/* .sidebar-logout    – pinned at bottom                          */
+
+/* ── 5. Main content ──────────────────────────────────────────── */
+/* .content-section   – padded section with scroll-margin-top     */
+/* .section-header    – flex row: heading left, action button right */
+
+/* ── 6. KPI grid ──────────────────────────────────────────────── */
+/* .kpi-grid          – CSS grid 2 cols × auto rows               */
+/* @media wide        – 4 cols single row                         */
+
+/* ── 7. KPI cards ─────────────────────────────────────────────── */
+/* .kpi-card          – white card with shadow                    */
+/* .kpi-value         – large bold metric number                  */
+/* .kpi-label         – small muted descriptor above              */
+/* .kpi-sub           – smaller context text below value          */
+/* .kpi-alerts        – red tint background when alerts > 0       */
+/* .morale-bar        – grey track                                */
+/* .morale-fill       – coloured fill width set by JS (%)         */
+
+/* ── 8. Report panel ──────────────────────────────────────────── */
+/* .report-panel      – prose area for rendered markdown          */
+/* Styles: h1-h3, p, ul/ol, table, code, blockquote              */
+
+/* ── 9. Loading spinner ───────────────────────────────────────── */
+/* .loading-state     – centred flex column                       */
+/* .spinner           – CSS border-top spinning animation         */
+
+/* ── 10. Alerts list ─────────────────────────────────────────── */
+/* .alerts-list       – unstyled list                             */
+/* .alert-item        – card with left coloured border            */
+/* .alert-critical    – red border                                */
+/* .alert-high        – orange border                             */
+/* .alert-medium      – amber border                              */
+/* .alert-low         – blue border                               */
+/* .resolve-btn       – small ghost button per alert              */
+
+/* ── 11. Team table ──────────────────────────────────────────── */
+/* .team-table        – full-width striped table                  */
+/* .status-submitted  – green check icon                          */
+/* .status-pending    – amber clock icon                          */
+/* .status-missed     – red cross icon                            */
+
+/* ── 12. History list ────────────────────────────────────────── */
+/* .history-list      – vertical list of past report links        */
+/* .history-item      – flex row: date left, "View" link right    */
+
+/* ── 13. Badge ───────────────────────────────────────────────── */
+/* .badge             – small red circle with alert count         */
+
+/* ── 14. Responsive ──────────────────────────────────────────── */
+/* @media (max-width: 1024px) */
+/* @media (max-width:  768px) */

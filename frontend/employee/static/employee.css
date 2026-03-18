@@ -1,0 +1,66 @@
+/*
+  frontend/employee/static/employee.css
+  Styles for the Employee Portal (login + dashboard pages).
+
+  Sections:
+    1. CSS custom properties (design tokens)
+    2. Reset and base typography
+    3. Layout – portal-wrapper, portal-header
+    4. Login card
+    5. Form elements (field-group, inputs, textareas, buttons)
+    6. Mood / morale selector
+    7. File upload – drop zone and file list
+    8. Status banners (success, warning, error)
+    9. Responsive breakpoints (≤ 768 px)
+*/
+
+/* ── 1. Design tokens ─────────────────────────────────────────── */
+:root {
+  --color-primary:    #4f46e5;   /* indigo-600 */
+  --color-primary-h:  #4338ca;   /* hover state */
+  --color-success:    #16a34a;
+  --color-warning:    #d97706;
+  --color-error:      #dc2626;
+  --color-bg:         #f8fafc;
+  --color-surface:    #ffffff;
+  --color-border:     #e2e8f0;
+  --color-text:       #1e293b;
+  --color-muted:      #64748b;
+  --radius-card:      12px;
+  --shadow-card:      0 4px 24px rgba(0,0,0,.08);
+}
+
+/* ── 2. Reset ─────────────────────────────────────────────────── */
+/* Intentionally minimal – add full reset when building out */
+
+/* ── 3. Layout ────────────────────────────────────────────────── */
+/* .portal-wrapper   – full-page flex column                      */
+/* .portal-header    – sticky top bar with logo + logout button   */
+/* .dashboard-main   – scrollable content area with card grid     */
+
+/* ── 4. Login card ────────────────────────────────────────────── */
+/* .login-card       – centered card, max-width 420px             */
+
+/* ── 5. Form elements ─────────────────────────────────────────── */
+/* .field-group      – label + input/textarea stack               */
+/* .btn-primary      – filled indigo button                       */
+/* .btn-ghost        – transparent button for logout              */
+/* .required         – red asterisk                               */
+
+/* ── 6. Mood selector ─────────────────────────────────────────── */
+/* .mood-selector    – horizontal row of 5 emoji-labeled buttons  */
+/* .mood-btn.active  – selected state (filled indigo ring)        */
+
+/* ── 7. File upload ───────────────────────────────────────────── */
+/* .drop-zone             – dashed border drop target             */
+/* .drop-zone.drag-over   – highlighted when file dragged over    */
+/* .file-list             – list of uploaded items with icons     */
+/* .file-item             – individual row: name, size, status    */
+
+/* ── 8. Banners ───────────────────────────────────────────────── */
+/* .status-banner.success – green confirmation bar                */
+/* .status-banner.warning – amber watchdog warning bar            */
+/* .error-msg             – inline red error text                 */
+
+/* ── 9. Responsive ────────────────────────────────────────────── */
+/* @media (max-width: 768px) – stack cards vertically             */

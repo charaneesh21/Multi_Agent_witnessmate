@@ -1,0 +1,141 @@
+# config/templates/tech_company.yaml
+# Use-case configuration template: Tech Company
+#
+# This YAML file defines the domain-specific behaviour of the multi-agent system
+# when deployed for a technology company.  Swap this file (or add new ones) to
+# reconfigure the system for a different industry without changing any code.
+#
+# Sections:
+#
+#   company:          Basic metadata about the organisation.
+#   employee_portal:  What employees submit each day (form fields, allowed
+#                     file types, deadlines, etc.).
+#   agents:           Per-agent instructions, personas, and tool access rules
+#                     loaded at runtime by the manager agent.
+#   ceo_dashboard:    Which metrics, KPIs, and alert thresholds appear in the
+#                     executive view.
+#   ai_gateway:       Security rules applied before any prompt reaches an agent
+#                     (content filters, rate limits, PII scrubbing toggles).
+
+# ---------------------------------------------------------------------------
+# Company metadata
+# ---------------------------------------------------------------------------
+company:
+  name: "Acme Tech Inc."
+  industry: "Software / SaaS"
+  timezone: "America/New_York"
+  fiscal_year_start: "January"
+
+# ---------------------------------------------------------------------------
+# Employee Portal – daily submission form definition
+# ---------------------------------------------------------------------------
+employee_portal:
+  login:
+    method: "email+password"          # future: SSO / OAuth
+    session_ttl_hours: 8
+
+  daily_form:
+    title: "Daily Status Update"
+    fields:
+      - id: "tasks_completed"
+        label: "Tasks completed today"
+        type: "textarea"
+        required: true
+      - id: "blockers"
+        label: "Current blockers"
+        type: "textarea"
+        required: false
+      - id: "next_day_plan"
+        label: "Plan for tomorrow"
+        type: "textarea"
+        required: true
+      - id: "mood"
+        label: "Team morale (1–5)"
+        type: "select"
+        options: [1, 2, 3, 4, 5]
+        required: true
+
+  file_upload:
+    allowed_types: ["pdf", "docx", "xlsx", "png", "jpg"]
+    max_size_mb: 10
+    storage_path: "uploads/"
+
+# ---------------------------------------------------------------------------
+# Agent configuration
+# ---------------------------------------------------------------------------
+agents:
+  manager:
+    model: "llama-3.3-70b-versatile"
+    persona: >
+      You are the orchestration manager for Acme Tech Inc.'s intelligence
+      system. Route tasks to the correct specialist agent, synthesise their
+      outputs, and return a single coherent response to the CEO dashboard.
+
+  research:
+    model: "llama-3.3-70b-versatile"
+    persona: >
+      You are a research specialist. Gather external market data, news, and
+      competitive intelligence relevant to the tech industry. Cite sources.
+    tools: ["web_search"]
+
+  analyst:
+    model: "llama-3.3-70b-versatile"
+    persona: >
+      You are a data analyst. Interpret employee submission data, identify
+      trends, compute KPIs, and surface actionable insights for leadership.
+    tools: ["database_query"]
+
+  watchdog:
+    model: "llama-3.3-70b-versatile"
+    persona: >
+      You are a compliance and risk watchdog. Flag anomalies, policy
+      violations, missed submissions, and security concerns in real time.
+    tools: ["database_query", "alert_sender"]
+
+  writer:
+    model: "llama-3.3-70b-versatile"
+    persona: >
+      You are an executive communications writer. Convert raw agent outputs
+      into polished briefings, summaries, and reports for the CEO.
+    tools: []
+
+# ---------------------------------------------------------------------------
+# CEO Dashboard – display configuration
+# ---------------------------------------------------------------------------
+ceo_dashboard:
+  refresh_interval_minutes: 15
+  kpis:
+    - label: "Submissions today"
+      source: "analyst"
+    - label: "Blocker count"
+      source: "analyst"
+    - label: "Average team morale"
+      source: "analyst"
+    - label: "Open alerts"
+      source: "watchdog"
+
+  report_sections:
+    - "Executive Summary"        # written by writer agent
+    - "Team Highlights"          # written by writer agent
+    - "Risk & Alerts"            # written by watchdog agent
+    - "Market Intelligence"      # written by research agent
+
+  alert_thresholds:
+    morale_below: 2
+    missed_submissions_pct: 20   # % of team that did not submit
+
+# ---------------------------------------------------------------------------
+# AI Gateway – security and routing rules
+# ---------------------------------------------------------------------------
+ai_gateway:
+  content_filter:
+    enabled: true
+    block_categories: ["hate_speech", "self_harm", "illegal_activity"]
+  pii_scrubbing:
+    enabled: true
+    fields_to_scrub: ["email", "phone", "ssn"]
+  rate_limiting:
+    requests_per_minute_per_user: 20
+  routing:
+    employee_portal_agent: "watchdog"   # first agent to inspect employee input
+    ceo_dashboard_agent:   "manager"    # manager orchestrates full pipeline

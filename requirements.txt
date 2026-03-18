@@ -1,0 +1,29 @@
+# ── Web framework ──────────────────────────────────────────────────────────────
+fastapi>=0.111.0          # Async web framework (routers, middleware, DI)
+uvicorn[standard]>=0.29.0 # ASGI server to run FastAPI
+
+# ── Groq SDK ───────────────────────────────────────────────────────────────────
+groq>=0.9.0               # Official Groq Python SDK (llama-* / mixtral models, tool_use)
+
+# ── Database ───────────────────────────────────────────────────────────────────
+sqlalchemy>=2.0.0         # ORM and query builder for SQLite
+aiosqlite>=0.20.0         # Async SQLite driver (used by SQLAlchemy async engine)
+
+# ── Validation & serialisation ─────────────────────────────────────────────────
+pydantic>=2.7.0           # Schema validation for request/response models
+pydantic[email]>=2.7.0    # EmailStr support in schemas
+pydantic-settings>=2.3.0  # BaseSettings (moved out of core in Pydantic v2)
+python-multipart>=0.0.9   # Required by FastAPI for file upload (multipart/form-data)
+
+# ── Configuration ──────────────────────────────────────────────────────────────
+python-dotenv>=1.0.0      # Load environment variables from .env file
+pyyaml>=6.0.1             # Parse YAML config templates (e.g. tech_company.yaml)
+
+# ── Auth & security ────────────────────────────────────────────────────────────
+passlib[bcrypt]>=1.7.4    # Password hashing for employee/CEO auth
+python-jose[cryptography]>=3.3.0  # JWT token creation and validation
+
+# ── Dev / testing (optional) ──────────────────────────────────────────────────
+# httpx>=0.27.0           # Async HTTP client for testing FastAPI with TestClient
+# pytest>=8.0.0           # Test runner
+# pytest-asyncio>=0.23.0  # Async test support
